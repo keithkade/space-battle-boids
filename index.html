@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pew Pew.">
+    <title>Battle Boids</title>
+    <link rel="icon" href="TODO">
+    <link rel="stylesheet" href="style.css">
+</head>    
+<body>
+    <div id="control-panel">
+        <h3>Simulation Settings</h3>
+        <label><input class="checkbox" type="checkbox" onclick='Boiler.toggleAxes(this)' checked> Show XYZ Axes</label>
+    </div>
+    <div id="webgl-container"></div>
+</body>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>    
+<script src="js/Util.js"></script> 
+<script src="js/Ship.js"></script>  
+<script src="js/Main.js"></script>
+    
+</html>
