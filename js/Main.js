@@ -24,11 +24,12 @@ var K_V = 0.5;       //velocity matching
 var K_C = 0.001;     //centering
 
 var simTimeout;
-var ship; 
+var squad; 
 
 // The overall state is a massive array. Contains positions and velocities
 var overallState;
-var nextState; // 
+var nextState;  
+let objectCount;
 
 window.onload = function(){
   scene = new THREE.Scene();
@@ -46,14 +47,17 @@ window.onload = function(){
 
 /** TODO */
 function initMotion(){
+  
+  console.log('TEST');
+  
+  ShipSquad.init(s => {
 
-  // TODO 
+    squad = s;
+    scene.add(squad.ships[0]);
+    scene.add(squad.ships[1]);
+    scene.add(squad.ships[2]);
 
-  Ship.init((s) => {
-    ship = s;
-    scene.add(s);
-
-    let objectCount = 1;
+    objectCount = squad.ships.length;
 
     overallState = new Array(objectCount * 2);
     nextState = new Array(objectCount * 2);
@@ -62,8 +66,13 @@ function initMotion(){
         nextState[l] = new THREE.Vector3(0,0,0);
     }
 
-    overallState[0] = new THREE.Vector3(1,1,0);
+    overallState[0] = new THREE.Vector3(1,-1,0);
     overallState[1] = new THREE.Vector3(1,0,0);
+    overallState[2] = new THREE.Vector3(1,1,0);
+
+    overallState[3] = new THREE.Vector3(0,0,0);
+    overallState[4] = new THREE.Vector3(0,0,0);
+    overallState[5] = new THREE.Vector3(0,0,0);
 
     clock = new THREE.Clock();
     clock.start();
@@ -79,15 +88,15 @@ function initMotion(){
 function F(state){
        
   //for all the ships apply physics
-  for (var i=0; i < 1; i++){
+  for (var i=0; i < objectCount; i++){
 
     //next timestep's position is this timestep's velocity
-    nextState[i].copy(state[i + 1]);
+    nextState[i].copy(state[i + objectCount]);
 
     var acceleration = new THREE.Vector3(0,0,0);
 
     // TODO calculate accelleration based on flocking behavior
-    nextState[i + 1].copy(acceleration);
+    nextState[i + objectCount].copy(acceleration);
   }
   return nextState;
 }
@@ -113,7 +122,9 @@ function simulate(){
   stateMultScalar(deriv, H);
   addState(overallState, deriv);
 
-  ship.position.copy(overallState[0]);
+  squad.ships[0].position.copy(overallState[0]);
+  squad.ships[1].position.copy(overallState[1]);
+  squad.ships[2].position.copy(overallState[2]);
 
   var waitTime = H_MILLI - clock.getDelta(); 
   if (waitTime < 4){ //4 milliseconds is the minimum wait for most browsers
