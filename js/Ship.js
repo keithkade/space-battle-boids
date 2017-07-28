@@ -1,7 +1,16 @@
 const Ship = {};
 
-Ship.init = () => {
-    var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-    return new THREE.Mesh( geometry, material );
-}
+Ship.init = (onload) => {
+
+  var loader = new THREE.OBJLoader();
+
+  // load a resource
+  loader.load(
+    // resource URL
+    'assets/Arwing_001.obj',
+    // Function when resource is loaded
+    function ( object ) {
+      onload(object);
+    }
+  );
+};
