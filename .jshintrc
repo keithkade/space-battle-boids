@@ -6,7 +6,6 @@
   "globals": {
       "THREE": true,
       "Boiler": true,
-      "Ship": true,
       "ShipSquad": true,
       "doc": true,
       "scene": true,

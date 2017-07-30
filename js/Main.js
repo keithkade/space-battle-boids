@@ -24,12 +24,14 @@ var K_V = 0.5;       //velocity matching
 var K_C = 0.001;     //centering
 
 var simTimeout;
-var squad; 
+var squads = []; 
+const squadCount = 3;
+const squadSize = 4;
 
 // The overall state is a massive array. Contains positions and velocities
 var overallState;
 var nextState;  
-let objectCount;
+let objectCount = squadCount * squadSize;
 
 window.onload = function(){
   scene = new THREE.Scene();
@@ -39,7 +41,7 @@ window.onload = function(){
   axes = Boiler.initAxes();
 
   //change what the camera is looking at and add our controls
-  camera.position.set(100, 100, 800);
+  camera.position.set(20, 20, 30);
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   initMotion();
@@ -48,32 +50,38 @@ window.onload = function(){
 /** TODO */
 function initMotion(){
   
-  console.log('TEST');
+  var promises = [];
+  for (let i = 0; i < squadCount; i++) {
+    promises.push(new ShipSquad([0, i*5, 7], [0, i*5, 0]).init());
+  }
   
-  ShipSquad.init(s => {
-
-    squad = s;
-    scene.add(squad.ships[0]);
-    scene.add(squad.ships[1]);
-    scene.add(squad.ships[2]);
-
-    objectCount = squad.ships.length;
-
+  Promise.all(promises).then(function() {
+    
+    for (let i = 0; i < squadCount; i++){
+      let squad = arguments[0][i];
+      squads.push(squad);
+      scene.add(squad.ships[0]);
+      scene.add(squad.ships[1]);
+      scene.add(squad.ships[2]);
+      scene.add(squad.ships[3]);
+    }
+    
     overallState = new Array(objectCount * 2);
     nextState = new Array(objectCount * 2);
-    for (var l = 0; l < objectCount * 2; l++){
-        overallState[l] = new THREE.Vector3(0,0,0);
-        nextState[l] = new THREE.Vector3(0,0,0);
+   
+    for (let i = 0; i < objectCount * 2; i++){
+      overallState[i] = new THREE.Vector3(0,0,0);
+      nextState[i] = new THREE.Vector3(0,0,0);
     }
-
-    overallState[0] = new THREE.Vector3(1,-1,0);
-    overallState[1] = new THREE.Vector3(1,0,0);
-    overallState[2] = new THREE.Vector3(1,1,0);
-
-    overallState[3] = new THREE.Vector3(0,0,0);
-    overallState[4] = new THREE.Vector3(0,0,0);
-    overallState[5] = new THREE.Vector3(0,0,0);
-
+    
+    // initialize positions and velocities
+    for (let i = 0; i < objectCount; i++){
+      let squadIndex = Math.floor(i/squadSize);
+      let shipIndex = i % squadSize;
+      overallState[i].copy(squads[squadIndex].ships[shipIndex].position);
+      overallState[i + objectCount].copy(squads[squadIndex].ships[shipIndex].velocity);
+    }
+    
     clock = new THREE.Clock();
     clock.start();
     clock.getDelta();
@@ -81,7 +89,7 @@ function initMotion(){
     window.clearTimeout(simTimeout);
     simulate();
     render();
-  });
+  }, function(err) {});  
 }
 
 // gets the derivative of a state. plus external forces
@@ -90,6 +98,20 @@ function F(state){
   //for all the ships apply physics
   for (var i=0; i < objectCount; i++){
 
+    let squadIndex = Math.floor(i/squadSize);
+    let shipIndex = i % squadSize;
+    
+    //LEADER - follows target
+    if (shipIndex == 1){
+      let leader = squads[squadIndex].leader;
+      let target = squads[squadIndex].target;
+      let direction = target.position.clone().sub(leader.position).clone().normalize();
+      let magnitude = state[i + objectCount].length();
+      
+      leader.lookAt(target.position);
+      state[i + objectCount].copy(direction.multiplyScalar(magnitude));      
+    }
+    
     //next timestep's position is this timestep's velocity
     nextState[i].copy(state[i + objectCount]);
 
@@ -122,10 +144,12 @@ function simulate(){
   stateMultScalar(deriv, H);
   addState(overallState, deriv);
 
-  squad.ships[0].position.copy(overallState[0]);
-  squad.ships[1].position.copy(overallState[1]);
-  squad.ships[2].position.copy(overallState[2]);
-
+  for (let i = 0; i < squadCount; i++) {
+    for (let j = 0; j < squadSize; j++) {
+      squads[i].ships[j].position.copy(overallState[squadSize * i + j]);
+    }
+  }
+  
   var waitTime = H_MILLI - clock.getDelta(); 
   if (waitTime < 4){ //4 milliseconds is the minimum wait for most browsers
       console.log("simulation getting behind and slowing down!");
