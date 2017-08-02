@@ -1,3 +1,9 @@
+var Util = {};
+
+Util.getRandom = function(min, max) {
+  return Math.random() * (max - min) + min;
+};
+
 /************* THREE.js boilerplate *************/
 
 var panelWidth = 300;
@@ -17,7 +23,7 @@ var Boiler = {};
 /** create the renderer and add it to the scene */
 Boiler.initRenderer = function(){
   var renderer = new THREE.WebGLRenderer({ alpha: true });
-  renderer.setClearColor(0xeeeeee , 1); 
+  renderer.setClearColor(0x1c1c1c, 1); 
   renderer.setSize(SCENE_WIDTH, SCENE_HEIGHT);
   renderer.sortObjects = false; //helps. doesn't fix transparency issues fully though
   doc.getElementById('webgl-container').appendChild(renderer.domElement);
@@ -33,7 +39,7 @@ Boiler.initCamera = function(){
     
 /** create the point light and add it to the scene */
 Boiler.initLight = function(){
-  var pointLight = new THREE.PointLight(0x0000FF); // blue
+  var pointLight = new THREE.PointLight(0xFFFFFF); // white light
   pointLight.position.set (10, 10, 300);
 
   scene.add(pointLight);

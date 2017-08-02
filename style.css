@@ -3,13 +3,13 @@ html, body {
     padding: 0;
     height: 100%;
     width: 100%;
-    background-color: #EEEEEE;
+    background-color: #1c1c1c;
     font-family: monospace;
 }
 
 #webgl-container {
     display: inline-block;
-    background-color: #EEEEEE;
+    background-color: #1c1c1c;
     float: left;
 }
 
