@@ -1,4 +1,4 @@
-var Util = {};
+let Util = {};
 
 Util.getRandom = function(min, max) {
   return Math.random() * (max - min) + min;
@@ -6,40 +6,40 @@ Util.getRandom = function(min, max) {
 
 /************* THREE.js boilerplate *************/
 
-var panelWidth = 300;
+let panelWidth = 300;
 if (window.innerWidth < 700){ //so it can look ok on mobile
     panelWidth = 0;
 }
-var SCENE_WIDTH = window.innerWidth - panelWidth; //430 is width of options panel
-var SCENE_HEIGHT = window.innerHeight - 5; //Three js makes the canvas a few pixels too big so the minus five fixes that 
+let SCENE_WIDTH = window.innerWidth - panelWidth; //430 is width of options panel
+let SCENE_HEIGHT = window.innerHeight - 5; //Three js makes the canvas a few pixels too big so the minus five fixes that 
 
-var FIELD_OF_VIEW = 45;
-var ASPECT = SCENE_WIDTH / SCENE_HEIGHT;
-var NEAR = 0.1;
-var FAR = 10000;
+let FIELD_OF_VIEW = 45;
+let ASPECT = SCENE_WIDTH / SCENE_HEIGHT;
+let NEAR = 0.1;
+let FAR = 10000;
 
-var Boiler = {};
+let Boiler = {};
 
 /** create the renderer and add it to the scene */
 Boiler.initRenderer = function(){
-  var renderer = new THREE.WebGLRenderer({ alpha: true });
+  let renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setClearColor(0x1c1c1c, 1); 
   renderer.setSize(SCENE_WIDTH, SCENE_HEIGHT);
   renderer.sortObjects = false; //helps. doesn't fix transparency issues fully though
-  doc.getElementById('webgl-container').appendChild(renderer.domElement);
+  document.getElementById('webgl-container').appendChild(renderer.domElement);
   return renderer;
 };
 
 /** create the camera and add it to the scene */
 Boiler.initCamera = function(){    
-  var camera = new THREE.PerspectiveCamera( FIELD_OF_VIEW, ASPECT, NEAR, FAR);
+  let camera = new THREE.PerspectiveCamera( FIELD_OF_VIEW, ASPECT, NEAR, FAR);
   scene.add(camera);        
   return camera;
 };
     
 /** create the point light and add it to the scene */
 Boiler.initLight = function(){
-  var pointLight = new THREE.PointLight(0xFFFFFF); // white light
+  let pointLight = new THREE.PointLight(0xFFFFFF); // white light
   pointLight.position.set (10, 10, 300);
 
   scene.add(pointLight);
@@ -48,8 +48,8 @@ Boiler.initLight = function(){
 
 /** draw x, y and z axes */
 Boiler.initAxes = function(){
-  var length = 100;
-  var axes = new THREE.Object3D();
+  let length = 100;
+  let axes = new THREE.Object3D();
 
   //lines
   axes.add(Boiler.initLine(new THREE.Vector3(-length, 0, 0), new THREE.Vector3(length, 0, 0), 0xff0000)); // X 
@@ -67,8 +67,8 @@ Boiler.initAxes = function(){
 
 /** Create a line that goes between the two points of the given color*/
 Boiler.initLine = function(v1, v2, col){
-  var material = new THREE.LineBasicMaterial({ color: col });
-  var geometry = new THREE.Geometry();
+  let material = new THREE.LineBasicMaterial({ color: col });
+  let geometry = new THREE.Geometry();
   geometry.vertices.push(v1);
   geometry.vertices.push(v2);
   var line = new THREE.Line(geometry, material);
@@ -87,27 +87,27 @@ Boiler.toggleAxes = function(elem){
 /** Creates a canvas with the given text then renders that as a sprite. Original: http://stackoverflow.com/questions/14103986/canvas-and-spritematerial */
 Boiler.initLabel = function(text, color, coords){
 
-  var canvas = doc.createElement('canvas');
-  var size = 300;
+  let canvas = document.createElement('canvas');
+  let size = 300;
   canvas.width = size;
   canvas.height = size;
 
-  var context = canvas.getContext('2d');
+  let context = canvas.getContext('2d');
   context.textAlign = 'center';
   context.fillStyle = color;
   context.font = '90px Helvetica';
   context.fillText(text, size/2, size/2);
 
-  var amap = new THREE.Texture(canvas);
+  let amap = new THREE.Texture(canvas);
   amap.needsUpdate = true;
   amap.minFilter = THREE.LinearFilter;
 
-  var mat = new THREE.SpriteMaterial({
+  let mat = new THREE.SpriteMaterial({
     map: amap,
     color: 0xffffff     
   });
 
-  var sprite = new THREE.Sprite(mat);
+  let sprite = new THREE.Sprite(mat);
   sprite.scale.set( 10, 10, 1 ); 
   sprite.position.set(coords[0], coords[1], coords[2]);
   return sprite;  
@@ -115,11 +115,11 @@ Boiler.initLabel = function(text, color, coords){
 };
 
 Boiler.drawPoint = function(x){
-  var material = new THREE.SpriteMaterial( {
+  let material = new THREE.SpriteMaterial( {
     color: 0x333333
   });
 
-  var sprite = new THREE.Sprite(material);
+  let sprite = new THREE.Sprite(material);
   sprite.scale.set( 5, 5, 1 ); 
   sprite.position.set(x.x, x.y, x.z);
   scene.add(sprite);

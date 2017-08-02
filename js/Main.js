@@ -3,38 +3,30 @@
  */
 
 // Globals
-let scene;
-let renderer;
-let camera;
-let light;
-let axes;
-let doc = document; //shorthand
+let scene, renderer, camera, light, axes, clock;
 
-let clock;
-
-//variables that the user sets
-const H = 0.016;          // Step time in seconds
-const H_MILLI = H * 1000;        // Step time In milliseconds
+const H = 0.016;            // Step time in seconds
+const H_MILLI = H * 1000;   // Step time In milliseconds
 
 //flocking tuning constants
 const K_A = 2;       //collision avoidance
-const K_V = 0.5;       //velocity matching
+const K_V = 0.5;     //velocity matching
 const K_C = 0.2;     //centering
 
+//perterb ships occasionally for more interesting flights
 const squadNoiseFactor = 100;
 const leadNoiseFactor = 100;
 
 let simTimeout;
 let squads = []; 
 const squadCount = 1;
-const squadSize = 4;
+const squadSize = 3;
+const objectCount = squadCount * squadSize;
 
 // The overall state is a massive array. Contains positions and velocities
-let overallState;
-let nextState;  
-let objectCount = squadCount * squadSize;
+let overallState, nextState;  
 
-//TODO move to be a member of ship maybe? 
+//TODO move to be a member of ship? 
 let curve;
 let loopTime = 60;
 
@@ -49,6 +41,7 @@ window.onload = function(){
   camera.position.set(20, 20, 30);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+  // TODO move me
   curve = new THREE.CubicBezierCurve3(
     new THREE.Vector3( 0, 0, 20 ),
     new THREE.Vector3( -150, 40, 760 ),
@@ -64,7 +57,7 @@ window.onload = function(){
 
   // Create the final object to add to the scene
   var curveObject = new THREE.Line( geometry, material );
-  
+
   scene.add(curveObject);
   
   initMotion();
@@ -82,26 +75,23 @@ function initMotion(){
     for (let i = 0; i < squadCount; i++){
       let squad = arguments[0][i];
       squads.push(squad);
-      scene.add(squad.ships[0]);
-      scene.add(squad.ships[1]);
-      scene.add(squad.ships[2]);
-      scene.add(squad.ships[3]);
+      for (let j = 0; j < squadSize; j++){
+        scene.add(squad.ships[j]);
+      }
+      scene.add(squad.target);
     }
     
     overallState = new Array(objectCount * 2);
     nextState = new Array(objectCount * 2);
-   
-    for (let i = 0; i < objectCount * 2; i++){
-      overallState[i] = new THREE.Vector3(0,0,0);
-      nextState[i] = new THREE.Vector3(0,0,0);
-    }
-    
+      
     // initialize positions and velocities
     for (let i = 0; i < objectCount; i++){
       let squadIndex = Math.floor(i/squadSize);
       let shipIndex = i % squadSize;
-      overallState[i].copy(squads[squadIndex].ships[shipIndex].position);
-      overallState[i + objectCount].copy(squads[squadIndex].ships[shipIndex].velocity);
+      overallState[i] = squads[squadIndex].ships[shipIndex].position.clone();
+      overallState[i + objectCount] = squads[squadIndex].ships[shipIndex].velocity.clone();
+      nextState[i] = overallState[i].clone();
+      nextState[i + objectCount] = overallState[i + objectCount].clone();
     }
     
     clock = new THREE.Clock();
@@ -144,16 +134,17 @@ function F(state){
     
     let acceleration = new THREE.Vector3(0,0,0);
 
-    // flocking doesn't apply to targets and leaders
-    if (shipIndex === 0 || shipIndex === 1){
+    // flocking doesn't apply to leaders
+    if (shipIndex === 0){
       continue; 
     }
     
     for (let k = 0; k < squadSize; k++){
       
-      if (k === 0 || k === shipIndex){
+      if (k === shipIndex){
         continue;
       }
+      
       let j = squadIndex + k;
           
       let dist = state[i].distanceTo(state[j]);
@@ -168,7 +159,6 @@ function F(state){
       
       //centering
       acceleration.add(state[j].clone().sub(state[i]).multiplyScalar(K_C));
-      
     }
     
     // introduce noise to keep things interesting        
@@ -201,6 +191,16 @@ function simulate(){
   stateMultScalar(deriv, H);
   addState(overallState, deriv);
 
+  for (let i=0; i < squadCount; i++){
+      let target = squads[i].target;
+      let curTime = clock.getElapsedTime();
+      let frac = (curTime % loopTime) / loopTime;
+      let point= curve.getPointAt(frac);
+      target.lookAt(point);
+      target.velocity = point.clone().sub(target.position).divideScalar(H);
+      target.position.copy(point);
+  }
+  
   for (let i=0; i < objectCount; i++){
         
     let squadIndex = Math.floor(i/squadSize);
@@ -209,16 +209,7 @@ function simulate(){
     let target = squads[squadIndex].target;
     let leader = squads[squadIndex].leader;
 
-    if (shipIndex === 0){ // target follows curve
-      let curTime = clock.getElapsedTime();
-      let frac = (curTime % loopTime) / loopTime;
-      let point= curve.getPointAt(frac);
-      target.lookAt(point);
-      target.velocity = point.clone().sub(target.position).divideScalar(H);
-      target.position.copy(point);
-      
-    }
-    else if (shipIndex === 1){ // manually match leader's velocity with target
+    if (shipIndex === 0){ // manually match leader's velocity with target
       
       let vel = target.position.clone().sub(leader.position).clone().normalize();
       let magnitude = target.velocity.length(); 
@@ -235,17 +226,14 @@ function simulate(){
         }
       }
       // maybe add noise
-      
-      
+    
       overallState[i + objectCount].copy(vel);      
     }
     
     // update leader and squad based on state
-    if (shipIndex !== 0){
-      squads[squadIndex].ships[shipIndex].lookAt(target.position);
-      squads[squadIndex].ships[shipIndex].position.copy(overallState[i]);
-      squads[squadIndex].ships[shipIndex].velocity.copy(overallState[i + objectCount]);
-    }
+    squads[squadIndex].ships[shipIndex].lookAt(target.position);
+    squads[squadIndex].ships[shipIndex].position.copy(overallState[i]);
+    squads[squadIndex].ships[shipIndex].velocity.copy(overallState[i + objectCount]);
   }
 
   

@@ -7,7 +7,6 @@
     "THREE": true,
     "Boiler": true,
     "ShipSquad": true,
-    "doc": true,
     "scene": true,
     "axes": true,
     "Util": true
