@@ -19,7 +19,7 @@ const leadNoiseFactor = 100;
 
 let simTimeout;
 let squads = []; 
-const squadCount = 1;
+const squadCount = 10;
 const squadSize = 3;
 const objectCount = squadCount * squadSize;
 
@@ -197,6 +197,7 @@ function simulate(){
       let frac = (curTime % loopTime) / loopTime;
       let point= curve.getPointAt(frac);
       target.lookAt(point);
+      target.updateTail();
       target.velocity = point.clone().sub(target.position).divideScalar(H);
       target.position.copy(point);
   }
@@ -205,10 +206,11 @@ function simulate(){
         
     let squadIndex = Math.floor(i/squadSize);
     let shipIndex = i % squadSize;
+    let ship = squads[squadIndex].ships[shipIndex];
 
     let target = squads[squadIndex].target;
     let leader = squads[squadIndex].leader;
-
+    
     if (shipIndex === 0){ // manually match leader's velocity with target
       
       let vel = target.position.clone().sub(leader.position).clone().normalize();
@@ -230,10 +232,12 @@ function simulate(){
       overallState[i + objectCount].copy(vel);      
     }
     
+    ship.updateTail();
+    
     // update leader and squad based on state
-    squads[squadIndex].ships[shipIndex].lookAt(target.position);
-    squads[squadIndex].ships[shipIndex].position.copy(overallState[i]);
-    squads[squadIndex].ships[shipIndex].velocity.copy(overallState[i + objectCount]);
+    ship.lookAt(target.position);
+    ship.position.copy(overallState[i]);
+    ship.velocity.copy(overallState[i + objectCount]);
   }
 
   

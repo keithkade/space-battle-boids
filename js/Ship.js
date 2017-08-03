@@ -2,15 +2,25 @@
 function AugmentShip(ship){
   ship.velocity = new THREE.Vector3(0,0,0);
 
-  // TODO have this geometry be updated every frame to create "tail"
   var geometry = new THREE.Geometry();
-  let points = [];
-  geometry.vertices = points;
+  ship.points = [];
+  geometry.vertices = ship.points;
 
-  var material = new THREE.LineBasicMaterial( { color : 0xffffff } );
-  var curveObject = new THREE.Line( geometry, material );  
-  scene.add(curveObject);
-  
+  var material = new THREE.LineBasicMaterial( { color : 0xce00ff } );
+  material.linewidth = 20;
+  ship.tail = new THREE.Line( geometry, material );  
+  scene.add(ship.tail);
+
+  ship.updateTail = function(){
+    this.points.push(ship.position.clone());
+    
+    if (this.points.length > 200){
+      this.points.shift();
+    }
+    
+    this.tail.geometry = new THREE.Geometry();
+    this.tail.geometry.vertices = this.points;  
+  };
 }
 
 function ShipFactory() {
@@ -37,6 +47,7 @@ ShipSquad.prototype.init = function() {
       }
             
       this.target = ship.clone();
+      AugmentShip(this.target);
       this.leader = this.ships[0];
       
       this.target.velocity = new THREE.Vector3(Util.getRandom(-2,2), 0, 1);
