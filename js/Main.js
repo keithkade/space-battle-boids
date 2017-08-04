@@ -1,4 +1,4 @@
-/** 
+/**
  *   @author: Kade Keith
  */
 
@@ -18,13 +18,13 @@ const squadNoiseFactor = 100;
 const leadNoiseFactor = 100;
 
 let simTimeout;
-let squads = []; 
+let squads = [];
 const SQ_COUNT = 2;
 const SQ_SIZE = 3;
 const OBJECT_COUNT = SQ_COUNT * SQ_SIZE;
 
 // The overall state is a massive array. Contains positions and velocities
-let overallState, nextState;  
+let overallState, nextState;
 
 window.onload = function(){
   scene = new THREE.Scene();
@@ -36,20 +36,20 @@ window.onload = function(){
   //change what the camera is looking at and add our controls
   camera.position.set(220, 220, 230);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
-  
+
   initMotion();
 };
 
 function initMotion(){
-  
+
   // Generate all of the squads
   let promises = [];
   for (let i = 0; i < SQ_COUNT; i++) {
     promises.push(new ShipSquad(TARGETS[i], LEADERS[i], CURVES[i], LOOPTIMES[i]).init());
   }
-  
+
   Promise.all(promises).then(function() {
-    
+
     for (let i = 0; i < SQ_COUNT; i++){
       let squad = arguments[0][i];
       squads.push(squad);
@@ -58,10 +58,10 @@ function initMotion(){
       }
       scene.add(squad.target);
     }
-    
+
     overallState = new Array(OBJECT_COUNT * 2);
     nextState = new Array(OBJECT_COUNT * 2);
-      
+
     // initialize positions and velocities
     for (let i = 0; i < OBJECT_COUNT; i++){
       let squadIndex = Math.floor(i/SQ_SIZE);
@@ -71,7 +71,7 @@ function initMotion(){
       nextState[i] = overallState[i].clone();
       nextState[i + OBJECT_COUNT] = overallState[i + OBJECT_COUNT].clone();
     }
-        
+
     clock = new THREE.Clock();
     clock.start();
     clock.getDelta();
@@ -79,7 +79,7 @@ function initMotion(){
     window.clearTimeout(simTimeout);
     simulate();
     render();
-  }, function(err) {});  
+  }, function(err) {});
 }
 
 function addState(state1, state2){
@@ -98,70 +98,70 @@ let iter = 0;
 let zoomCount = 0;
 // gets the derivative of a state. plus external forces
 function F(state){
-  
+
   iter++;
-  
+
   //for all the ships apply physics
   for (let i=0; i < OBJECT_COUNT; i++){
-        
+
     let squadIndex = Math.floor(i/SQ_SIZE);
     let shipIndex = i % SQ_SIZE;
 
     //derivatives position is this timestep's velocity
     nextState[i].copy(state[i + OBJECT_COUNT]);
-    
+
     let acceleration = new THREE.Vector3(0,0,0);
 
     // flocking doesn't apply to leaders
     if (shipIndex === 0){
-      continue; 
+      continue;
     }
-    
+
     for (let k = 0; k < SQ_SIZE; k++){
-      
+
       if (k === shipIndex){
         continue;
       }
-      
+
       let j = squadIndex * SQ_SIZE + k;
-          
+
       let dist = state[i].distanceTo(state[j]);
-      
-      //collision avoidance         
+
+      //collision avoidance
       let avoidance = state[j].clone().sub(state[i]).normalize().multiplyScalar(-1 * K_A / dist);
       acceleration.add(avoidance);
-      
+
       //Velocity matching
       let velocityMatch = state[j + OBJECT_COUNT].clone().sub(state[i + OBJECT_COUNT]).multiplyScalar(K_V);
       acceleration.add(velocityMatch);
-      
+
       //centering
       acceleration.add(state[j].clone().sub(state[i]).multiplyScalar(K_C));
     }
-    
-    // introduce noise to keep things interesting        
+
+    // introduce noise to keep things interesting
     if (iter % 400 === 0){
       if ((shipIndex + zoomCount) % 2 === 0){
         zoomCount++;
         iter++;
         acceleration.add(
           new THREE.Vector3(
-            Util.getRandom(-squadNoiseFactor,squadNoiseFactor), 
-            Util.getRandom(-squadNoiseFactor,squadNoiseFactor), 
+            Util.getRandom(-squadNoiseFactor,squadNoiseFactor),
+            Util.getRandom(-squadNoiseFactor,squadNoiseFactor),
             Util.getRandom(-squadNoiseFactor,squadNoiseFactor)
           )
         );
       }
     }
-   
-    
+
+
     nextState[i + OBJECT_COUNT].copy(acceleration);
   }
   return nextState;
 }
 
-/** the main simulation loop. recursive */ 
-function simulate(){ 
+/** the main simulation loop. recursive */
+function simulate(){
   let timestep = H;
 
   //euler integration
@@ -178,34 +178,37 @@ function simulate(){
       target.updateTail();
       target.velocity = point.clone().sub(target.position).divideScalar(H);
       target.position.copy(point);
-    
+
       for (let pew of squads[i].pews){
         pew.position.add(pew.velocity.clone().multiplyScalar(H));
 
+        pew.timeRemaining -= H;
+
         if (pew.timeRemaining < 0){
           scene.remove(pew);
+          pew.geometry.dispose();
+          pew.material.dispose();
           squads[i].pews.delete(pew);
         }
-        pew.timeRemaining -= H;
       }
   }
-  
+
   for (let i=0; i < OBJECT_COUNT; i++){
-        
+
     let squadIndex = Math.floor(i/SQ_SIZE);
     let shipIndex = i % SQ_SIZE;
     let ship = squads[squadIndex].ships[shipIndex];
 
     let target = squads[squadIndex].target;
     let leader = squads[squadIndex].leader;
-    
+
     if (shipIndex === 0){ // manually match leader's velocity with target
-      
+
       let vel = target.position.clone().sub(leader.position).clone().normalize();
-      let magnitude = target.velocity.length(); 
-      
+      let magnitude = target.velocity.length();
+
       vel.multiplyScalar(magnitude);
-      
+
       // Don't let the leader actually catch up to the target
       let distance = target.position.distanceTo(leader.position);
       if (distance < 20){
@@ -215,23 +218,23 @@ function simulate(){
         }
       }
       // maybe add noise
-      overallState[i + OBJECT_COUNT].copy(vel);      
+      overallState[i + OBJECT_COUNT].copy(vel);
     }
-    
+
     ship.updateTail();
-    
+
     if (Util.getRandom(0,100) > 99){
       squads[squadIndex].firePew(ship);
     }
-    
+
     // update leader and squad based on state
     ship.lookAt(target.position);
     ship.position.copy(overallState[i]);
     ship.velocity.copy(overallState[i + OBJECT_COUNT]);
   }
 
-  
-  let waitTime = H_MILLI - clock.getDelta(); 
+
+  let waitTime = H_MILLI - clock.getDelta();
   if (waitTime < 4){ //4 milliseconds is the minimum wait for most browsers
       console.log("simulation getting behind and slowing down!");
   }
@@ -239,8 +242,7 @@ function simulate(){
 }
 
 /** rendering loop */
-function render() {	
+function render() {
   renderer.render(scene, camera); //draw it
   requestAnimationFrame(render);  //redraw whenever the browser refreshes
 }
-
