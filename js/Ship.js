@@ -7,7 +7,7 @@ function AugmentShip(ship){
   geometry.vertices = ship.points;
 
   var material = new THREE.LineBasicMaterial( { color : 0xce00ff } );
-  material.linewidth = 20;
+  material.linewidth = 3; //doesn't work on most recent chrome
   ship.tail = new THREE.Line( geometry, material );  
   scene.add(ship.tail);
 
