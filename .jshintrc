@@ -9,6 +9,10 @@
     "ShipSquad": true,
     "scene": true,
     "axes": true,
-    "Util": true
+    "Util": true,
+    "CURVES": true,
+    "LEADERS": true,
+    "TARGETS": true,
+    "LOOPTIMES": true
   }
 }

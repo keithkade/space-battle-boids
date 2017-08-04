@@ -19,16 +19,12 @@ const leadNoiseFactor = 100;
 
 let simTimeout;
 let squads = []; 
-const squadCount = 10;
-const squadSize = 3;
-const objectCount = squadCount * squadSize;
+const SQ_COUNT = 2;
+const SQ_SIZE = 3;
+const OBJECT_COUNT = SQ_COUNT * SQ_SIZE;
 
 // The overall state is a massive array. Contains positions and velocities
 let overallState, nextState;  
-
-//TODO move to be a member of ship? 
-let curve;
-let loopTime = 60;
 
 window.onload = function(){
   scene = new THREE.Scene();
@@ -38,62 +34,44 @@ window.onload = function(){
   axes = Boiler.initAxes();
 
   //change what the camera is looking at and add our controls
-  camera.position.set(20, 20, 30);
+  camera.position.set(220, 220, 230);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-  // TODO move me
-  curve = new THREE.CubicBezierCurve3(
-    new THREE.Vector3( 0, 0, 20 ),
-    new THREE.Vector3( -150, 40, 760 ),
-    new THREE.Vector3( -10, 40, -720 ),
-    new THREE.Vector3( 0, 0, 20 )
-  );
-
-  var geometry = new THREE.Geometry();
-  let points = curve.getPoints(50);
-  geometry.vertices = points;
-
-  var material = new THREE.LineBasicMaterial( { color : 0xffffff } );
-
-  // Create the final object to add to the scene
-  var curveObject = new THREE.Line( geometry, material );
-
-  scene.add(curveObject);
   
   initMotion();
 };
 
 function initMotion(){
   
+  // Generate all of the squads
   let promises = [];
-  for (let i = 0; i < squadCount; i++) {
-    promises.push(new ShipSquad([0, i*5, 15], [0, i*5, 0]).init());
+  for (let i = 0; i < SQ_COUNT; i++) {
+    promises.push(new ShipSquad(TARGETS[i], LEADERS[i], CURVES[i], LOOPTIMES[i]).init());
   }
   
   Promise.all(promises).then(function() {
     
-    for (let i = 0; i < squadCount; i++){
+    for (let i = 0; i < SQ_COUNT; i++){
       let squad = arguments[0][i];
       squads.push(squad);
-      for (let j = 0; j < squadSize; j++){
+      for (let j = 0; j < SQ_SIZE; j++){
         scene.add(squad.ships[j]);
       }
       scene.add(squad.target);
     }
     
-    overallState = new Array(objectCount * 2);
-    nextState = new Array(objectCount * 2);
+    overallState = new Array(OBJECT_COUNT * 2);
+    nextState = new Array(OBJECT_COUNT * 2);
       
     // initialize positions and velocities
-    for (let i = 0; i < objectCount; i++){
-      let squadIndex = Math.floor(i/squadSize);
-      let shipIndex = i % squadSize;
+    for (let i = 0; i < OBJECT_COUNT; i++){
+      let squadIndex = Math.floor(i/SQ_SIZE);
+      let shipIndex = i % SQ_SIZE;
       overallState[i] = squads[squadIndex].ships[shipIndex].position.clone();
-      overallState[i + objectCount] = squads[squadIndex].ships[shipIndex].velocity.clone();
+      overallState[i + OBJECT_COUNT] = squads[squadIndex].ships[shipIndex].velocity.clone();
       nextState[i] = overallState[i].clone();
-      nextState[i + objectCount] = overallState[i + objectCount].clone();
+      nextState[i + OBJECT_COUNT] = overallState[i + OBJECT_COUNT].clone();
     }
-    
+        
     clock = new THREE.Clock();
     clock.start();
     clock.getDelta();
@@ -124,13 +102,13 @@ function F(state){
   iter++;
   
   //for all the ships apply physics
-  for (let i=0; i < objectCount; i++){
+  for (let i=0; i < OBJECT_COUNT; i++){
         
-    let squadIndex = Math.floor(i/squadSize);
-    let shipIndex = i % squadSize;
+    let squadIndex = Math.floor(i/SQ_SIZE);
+    let shipIndex = i % SQ_SIZE;
 
     //derivatives position is this timestep's velocity
-    nextState[i].copy(state[i + objectCount]);
+    nextState[i].copy(state[i + OBJECT_COUNT]);
     
     let acceleration = new THREE.Vector3(0,0,0);
 
@@ -139,13 +117,13 @@ function F(state){
       continue; 
     }
     
-    for (let k = 0; k < squadSize; k++){
+    for (let k = 0; k < SQ_SIZE; k++){
       
       if (k === shipIndex){
         continue;
       }
       
-      let j = squadIndex + k;
+      let j = squadIndex * SQ_SIZE + k;
           
       let dist = state[i].distanceTo(state[j]);
       
@@ -154,7 +132,7 @@ function F(state){
       acceleration.add(avoidance);
       
       //Velocity matching
-      let velocityMatch = state[j + objectCount].clone().sub(state[i + objectCount]).multiplyScalar(K_V);
+      let velocityMatch = state[j + OBJECT_COUNT].clone().sub(state[i + OBJECT_COUNT]).multiplyScalar(K_V);
       acceleration.add(velocityMatch);
       
       //centering
@@ -177,7 +155,7 @@ function F(state){
     }
    
     
-    nextState[i + objectCount].copy(acceleration);
+    nextState[i + OBJECT_COUNT].copy(acceleration);
   }
   return nextState;
 }
@@ -191,21 +169,31 @@ function simulate(){
   stateMultScalar(deriv, H);
   addState(overallState, deriv);
 
-  for (let i=0; i < squadCount; i++){
+  for (let i=0; i < SQ_COUNT; i++){
       let target = squads[i].target;
       let curTime = clock.getElapsedTime();
-      let frac = (curTime % loopTime) / loopTime;
-      let point= curve.getPointAt(frac);
+      let frac = (curTime % squads[i].loopTime) / squads[i].loopTime;
+      let point = squads[i].curve.getPointAt(frac);
       target.lookAt(point);
       target.updateTail();
       target.velocity = point.clone().sub(target.position).divideScalar(H);
       target.position.copy(point);
+    
+      for (let pew of squads[i].pews){
+        pew.position.add(pew.velocity.clone().multiplyScalar(H));
+
+        if (pew.timeRemaining < 0){
+          scene.remove(pew);
+          squads[i].pews.delete(pew);
+        }
+        pew.timeRemaining -= H;
+      }
   }
   
-  for (let i=0; i < objectCount; i++){
+  for (let i=0; i < OBJECT_COUNT; i++){
         
-    let squadIndex = Math.floor(i/squadSize);
-    let shipIndex = i % squadSize;
+    let squadIndex = Math.floor(i/SQ_SIZE);
+    let shipIndex = i % SQ_SIZE;
     let ship = squads[squadIndex].ships[shipIndex];
 
     let target = squads[squadIndex].target;
@@ -219,7 +207,6 @@ function simulate(){
       vel.multiplyScalar(magnitude);
       
       // Don't let the leader actually catch up to the target
-      /* */
       let distance = target.position.distanceTo(leader.position);
       if (distance < 20){
         vel.multiplyScalar(0.5);
@@ -228,16 +215,19 @@ function simulate(){
         }
       }
       // maybe add noise
-    
-      overallState[i + objectCount].copy(vel);      
+      overallState[i + OBJECT_COUNT].copy(vel);      
     }
     
     ship.updateTail();
     
+    if (Util.getRandom(0,100) > 99){
+      squads[squadIndex].firePew(ship);
+    }
+    
     // update leader and squad based on state
     ship.lookAt(target.position);
     ship.position.copy(overallState[i]);
-    ship.velocity.copy(overallState[i + objectCount]);
+    ship.velocity.copy(overallState[i + OBJECT_COUNT]);
   }
 
   
@@ -253,3 +243,4 @@ function render() {
   renderer.render(scene, camera); //draw it
   requestAnimationFrame(render);  //redraw whenever the browser refreshes
 }
+

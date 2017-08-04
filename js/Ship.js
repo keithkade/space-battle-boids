@@ -31,10 +31,23 @@ function ShipFactory() {
   });
 }
 
-function ShipSquad(targetPos, squadPos) {
+function ShipSquad(targetPos, squadPos, curve, loopTime) {
   this.ships = [];
-  this.targetPos = new THREE.Vector3(targetPos[0], targetPos[1], targetPos[2]);
-  this.squadPos = new THREE.Vector3(squadPos[0], squadPos[1], squadPos[2]);
+  this.targetPos = targetPos;
+  this.squadPos = squadPos;
+    
+  this.curve = curve;
+  this.loopTime = loopTime;
+  
+  this.pews = new Set();
+  
+  // for visual clarity. remove later
+  var geometry = new THREE.Geometry();
+  let points = curve.getPoints(100);
+  geometry.vertices = points;
+  var material = new THREE.LineBasicMaterial( { color : 0xffffff, opacity: 0.3, transparent: true } );
+  var curveObject = new THREE.Line( geometry, material );
+  scene.add(curveObject);
 }
 
 ShipSquad.prototype.init = function() {  
@@ -66,4 +79,27 @@ ShipSquad.prototype.init = function() {
       fulfill(this);
     });
   }.bind(this));
+};
+
+ShipSquad.prototype.firePew = function (ship){
+  var material = new THREE.LineBasicMaterial({
+	color: 0xfff733
+  });
+
+  var direction = ship.position.clone().sub(this.target.position);
+  
+  var geometry = new THREE.Geometry();
+  
+  geometry.vertices.push(
+      ship.position,
+      ship.position.clone().add(direction.normalize().multiplyScalar(2))
+  );
+
+  var line = new THREE.Line( geometry, material );
+  scene.add( line );
+  
+  line.timeRemaining = 5;
+  line.velocity = direction.normalize().clone().multiplyScalar(-20);
+    
+  this.pews.add(line);
 };
