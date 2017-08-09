@@ -7,7 +7,7 @@ Util.getRandom = function(min, max) {
 /************* THREE.js boilerplate *************/
 
 let SCENE_WIDTH = window.innerWidth; 
-let SCENE_HEIGHT = window.innerHeight - 5; //Three js makes the canvas a few pixels too big so the minus five fixes that 
+let SCENE_HEIGHT = window.innerHeight;
 
 let FIELD_OF_VIEW = 45;
 let ASPECT = SCENE_WIDTH / SCENE_HEIGHT;
@@ -18,10 +18,9 @@ let Boiler = {};
 
 /** create the renderer and add it to the scene */
 Boiler.initRenderer = function(){
-  let renderer = new THREE.WebGLRenderer({ alpha: true });
+  let renderer = new THREE.WebGLRenderer();
   renderer.setClearColor(0x050505, 1); 
   renderer.setSize(SCENE_WIDTH, SCENE_HEIGHT);
-  renderer.sortObjects = false; //helps. doesn't fix transparency issues fully though
   document.getElementById('webgl-container').appendChild(renderer.domElement);
   return renderer;
 };

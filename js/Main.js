@@ -224,7 +224,7 @@ function simulate(){
     ship.updateTail();
 
     if (Util.getRandom(0,100) > 99){
-      // squads[squadIndex].firePew(ship);
+      squads[squadIndex].firePew(ship);
     }
 
     // update leader and squad based on state

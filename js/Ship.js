@@ -22,6 +22,7 @@ function AugmentShip(ship){
     }
     this.tail.geometry.vertices[0].copy(ship.position);
     this.tail.geometry.verticesNeedUpdate = true;
+    this.tail.geometry.computeBoundingSphere();
   };
 }
 
