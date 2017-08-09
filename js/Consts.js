@@ -62,12 +62,6 @@ CURVES[1].add(new THREE.QuadraticBezierCurve3(
 	POINTS[1][3]
 ));
 
-// TODO LET START IN ARBITRARY DIRECTIONS
-const TARGETS = [
-  STARTS[0].clone().add(new THREE.Vector3(0,0,20)),
-  STARTS[1].clone().add(new THREE.Vector3(0,0,20)), 
-];
-
 const LEADERS = [
   STARTS[0],
   STARTS[1],

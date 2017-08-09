@@ -45,7 +45,7 @@ function initMotion(){
   // Generate all of the squads
   let promises = [];
   for (let i = 0; i < SQ_COUNT; i++) {
-    promises.push(new ShipSquad(TARGETS[i], LEADERS[i], CURVES[i], LOOPTIMES[i]).init());
+    promises.push(new ShipSquad(LEADERS[i], CURVES[i], LOOPTIMES[i]).init());
   }
 
   Promise.all(promises).then(function() {
@@ -224,7 +224,7 @@ function simulate(){
     ship.updateTail();
 
     if (Util.getRandom(0,100) > 99){
-      squads[squadIndex].firePew(ship);
+      // squads[squadIndex].firePew(ship);
     }
 
     // update leader and squad based on state

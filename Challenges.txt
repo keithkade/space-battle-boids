@@ -1,0 +1,3 @@
+Memory Leak in tail - Issues with swapping entire arrays or swapping geometries, can't dynamically update.
+
+Solution - Pre allocate array, write shift loop myself, initialize all points to be at ship location at first. 

@@ -2,26 +2,26 @@
 function AugmentShip(ship){
   ship.velocity = new THREE.Vector3(0,0,0);
 
-  var geometry = new THREE.Geometry();
-  ship.points = [];
-  geometry.vertices = ship.points;
-
-  var material = new THREE.LineBasicMaterial( { color : 0xce00ff } );
-  material.linewidth = 3; //doesn't work on most recent chrome
-  ship.tail = new THREE.Line( geometry, material );
-  scene.add(ship.tail);
-
-  ship.updateTail = function(){
-    this.points.push(ship.position.clone());
-
-    if (this.points.length > 200){
-      this.points.shift();
+  ship.initTail = function(){
+    var geometry = new THREE.Geometry();
+    let vertexArray = [];
+    for (let i = 0; i < 200; i ++){
+      vertexArray.push(ship.position.clone());
     }
+    geometry.vertices = vertexArray;
 
-    //this.tail.geometry.dispose();
-
-    this.tail.geometry = new THREE.Geometry();
-    this.tail.geometry.vertices = this.points;
+    var material = new THREE.LineBasicMaterial( { color : 0xce00ff } );
+    material.linewidth = 3; //doesn't work on most recent chrome
+    ship.tail = new THREE.Line( geometry, material );
+    scene.add(ship.tail);
+  };
+  
+  ship.updateTail = function(){
+    for (let i = 199; i > 0; i--){
+      this.tail.geometry.vertices[i].copy(this.tail.geometry.vertices[i-1]);
+    }
+    this.tail.geometry.vertices[0].copy(ship.position);
+    this.tail.geometry.verticesNeedUpdate = true;
   };
 }
 
@@ -33,10 +33,10 @@ function ShipFactory() {
   });
 }
 
-function ShipSquad(targetPos, squadPos, curve, loopTime) {
+function ShipSquad(squadPos, curve, loopTime) {
   this.ships = [];
-  this.targetPos = targetPos;
-  this.squadPos = squadPos;
+  this.targetPos = squadPos.clone();
+  this.squadPos = squadPos.clone();
 
   this.curve = curve;
   this.loopTime = loopTime;
@@ -78,6 +78,11 @@ ShipSquad.prototype.init = function() {
       this.ships[2].position.copy(this.squadPos.clone());
       this.ships[2].position.setX(this.ships[2].position.x + 2);
 
+      this.target.initTail();
+      for (let i = 0; i < 3; i++){
+        this.ships[i].initTail();
+      }
+      
       fulfill(this);
     });
   }.bind(this));
