@@ -19,7 +19,8 @@ let Boiler = {};
 /** create the renderer and add it to the scene */
 Boiler.initRenderer = function(){
   let renderer = new THREE.WebGLRenderer();
-  renderer.setClearColor(0x050505, 1); 
+  //renderer.setClearColor(0x050505, 1); 
+  renderer.setClearColor(0xcbcbcb, 1); 
   renderer.setSize(SCENE_WIDTH, SCENE_HEIGHT);
   document.getElementById('webgl-container').appendChild(renderer.domElement);
   return renderer;
@@ -32,13 +33,25 @@ Boiler.initCamera = function(){
   return camera;
 };
     
-/** create the point light and add it to the scene */
+/** create the light(s) and add it to the scene */
 Boiler.initLight = function(){
-  let pointLight = new THREE.PointLight(0xFFFFFF); // white light
-  pointLight.position.set (10, 10, 300);
-
+  let pointLight = new THREE.PointLight(0xFFFFFF, 0.5); // white light
+  pointLight.position.set(0, 500, 0);
   scene.add(pointLight);
   return pointLight;
+};
+
+/** starry background */
+Boiler.initScenery = function(){
+  var texture = new THREE.TextureLoader().load("assets/space.png");  
+  var geometry = new THREE.SphereGeometry(1000,20,20);
+  var material = new THREE.MeshPhongMaterial();
+  material.shininess = 1;
+  material.side = THREE.DoubleSide;
+  material.map = texture;
+
+  var space = new THREE.Mesh(geometry, material);  
+  scene.add(space);
 };
 
 /** draw x, y and z axes */

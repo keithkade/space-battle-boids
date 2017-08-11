@@ -1,3 +1,18 @@
 Memory Leak in tail - Issues with swapping entire arrays or swapping geometries, can't dynamically update.
 
 Solution - Pre allocate array, write shift loop myself, initialize all points to be at ship location at first. 
+
+
+Boring background - plain black is laaaaaaame 
+
+Solution - circle with cool texture. low specular intensity so some space doesn't look lighter than others
+
+
+Glow - most shaders not working for opengl
+
+https://stackoverflow.com/questions/11678769/whats-the-counterpart-for-gl-texcoord-in-opengl-es-2-0
+https://www.youtube.com/watch?v=qNM0k522R7o
+
+
+Sources: 
+http://www.astroblend.com/blenderFiles/sphericalMaps/starfield.png

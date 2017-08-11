@@ -32,9 +32,10 @@ window.onload = function(){
   camera = Boiler.initCamera();
   light = Boiler.initLight();
   axes = Boiler.initAxes();
-
+  //Boiler.initScenery();
+  
   //change what the camera is looking at and add our controls
-  camera.position.set(220, 220, 230);
+  camera.position.set(40, 40, 40);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   initMotion();

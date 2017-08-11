@@ -17,6 +17,54 @@
     <div id="webgl-container"></div>
 </body>
 
+
+<script type="x-shader/x-vertex" id="vertexshader">
+attribute vec2 a_texcoord;
+varying vec2 v_texcoord;
+
+void main() {
+  gl_Position = projectionMatrix *
+                modelViewMatrix *
+                vec4(position,1.0);
+                
+  v_texcoord = a_texcoord.st;
+}
+</script>
+
+
+<script type="x-shader/x-fragment" id="fragmentshader">
+  
+  uniform sampler2D renderedTexture;
+  varying vec2 v_texcoord;
+
+  //varying vec4 vColor;
+  void main() {
+    //vec4 color = vec4(0.4,  // R
+    //                  0.8,  // G
+    //                  0.8,  // B
+    //                  1.0); // A
+      
+      
+    vec4 color = texture2D(renderedTexture, v_texcoord.st);
+      
+    //vec2 texCoord = vec2(v_texcoord.s, v_texcoord.t);
+    
+    /**/
+    vec4 sum = vec4(0);
+    for (int i = -2; i <= 2; i++){
+      for (int j = -2; j <= 2; j++){
+        vec2 offset = vec2(i,j) * 0.005;
+        sum += texture2D(renderedTexture, v_texcoord[0] + offset);
+      }
+    }
+    
+    //gl_FragColor = color;
+    //gl_FragColor = sum;
+    gl_FragColor = sum + color;
+  }
+</script>
+
+  
 <script src="lib/three.min.js"></script>
 <script src="lib/OrbitControls.js"></script>
 <script src="lib/OBJLoader.js"></script>    

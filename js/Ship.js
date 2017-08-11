@@ -90,8 +90,23 @@ ShipSquad.prototype.init = function() {
 };
 
 ShipSquad.prototype.firePew = function (ship){
-  var material = new THREE.LineBasicMaterial({
-	color: 0xfff733
+
+  let canvas = document.createElement('canvas');
+  let size = 300;
+  canvas.width = size;
+  canvas.height = size;
+  let ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'red';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  var uniforms = {
+    texture1: { type: "t", value: new THREE.CanvasTexture(canvas) }
+  };
+  
+  var material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: document.getElementById('vertexshader').text,
+    fragmentShader: document.getElementById('fragmentshader').text
   });
 
   var direction = ship.position.clone().sub(this.target.position);
@@ -99,15 +114,24 @@ ShipSquad.prototype.firePew = function (ship){
   var geometry = new THREE.Geometry();
 
   geometry.vertices.push(
-      ship.position,
-      ship.position.clone().add(direction.normalize().multiplyScalar(2))
+    ship.position,
+    ship.position.clone().add(direction.normalize().multiplyScalar(30))
   );
 
-  var line = new THREE.Line( geometry, material );
+  var vertices = geometry.vertices;
+  var buffergeometry = new THREE.BufferGeometry();
+  var position = new THREE.Float32BufferAttribute( vertices.length * 3, 3 ).copyVector3sArray( vertices );
+  buffergeometry.addAttribute( 'position', position );
+  var a_texcoord = new THREE.Float32BufferAttribute(vertices.length * 2, 2).copyVector2sArray(
+    [ new THREE.Vector2(0.0, 0.0), new THREE.Vector2(1.0, 1.0) ]  
+  );
+  buffergeometry.addAttribute( 'a_texcoord', a_texcoord );
+ 
+  var line = new THREE.Line( buffergeometry, material );
   scene.add( line );
 
   line.timeRemaining = 5;
-  line.velocity = direction.normalize().clone().multiplyScalar(-20);
+  line.velocity = direction.normalize().clone().multiplyScalar(0);
 
   this.pews.add(line);
 };
