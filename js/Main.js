@@ -14,7 +14,7 @@ const K_V = 0.5;     //velocity matching
 const K_C = 0.2;     //centering
 
 //perterb ships occasionally for more interesting flights
-const squadNoiseFactor = 100;
+const squadNoiseFactor = 150;
 const leadNoiseFactor = 100;
 
 let simTimeout;
@@ -42,7 +42,10 @@ window.onload = function(){
 };
 
 function initMotion(){
-
+  clock = new THREE.Clock();
+  clock.start();
+  clock.getDelta();
+  
   // Generate all of the squads
   let promises = [];
   for (let i = 0; i < SQ_COUNT; i++) {
@@ -72,10 +75,6 @@ function initMotion(){
       nextState[i] = overallState[i].clone();
       nextState[i + OBJECT_COUNT] = overallState[i + OBJECT_COUNT].clone();
     }
-
-    clock = new THREE.Clock();
-    clock.start();
-    clock.getDelta();
 
     window.clearTimeout(simTimeout);
     simulate();
@@ -141,7 +140,7 @@ function F(state){
     }
 
     // introduce noise to keep things interesting
-    if (iter % 400 === 0){
+    if (iter % 200 === 0){
       if ((shipIndex + zoomCount) % 2 === 0){
         zoomCount++;
         iter++;
@@ -183,7 +182,6 @@ function simulate(){
       for (let pew of squads[i].pews){
         pew.position.add(pew.velocity.clone().multiplyScalar(H));
         pew.glow.material.uniforms.viewVector.value = new THREE.Vector3().subVectors( camera.position, pew.glow.getWorldPosition() );
-
         pew.timeRemaining -= H;
 
         if (pew.timeRemaining < 0){
@@ -225,7 +223,7 @@ function simulate(){
 
     ship.updateTail();
 
-    if (Util.getRandom(0,200) > 199){
+    if (Util.getRandom(0,300) > 298){
       squads[squadIndex].firePew(ship);
     }
 

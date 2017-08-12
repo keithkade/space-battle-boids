@@ -35,7 +35,7 @@ Boiler.initCamera = function(){
     
 /** create the light(s) and add it to the scene */
 Boiler.initLight = function(){
-  let pointLight = new THREE.PointLight(0xFFFFFF, 0.5); // white light
+  let pointLight = new THREE.PointLight(0xFFFFFF, 0.8); // white light
   pointLight.position.set(0, 500, 0);
   scene.add(pointLight);
   return pointLight;

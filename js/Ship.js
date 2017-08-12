@@ -3,26 +3,16 @@ function AugmentShip(ship){
   ship.velocity = new THREE.Vector3(0,0,0);
 
   ship.initTail = function(){
-    var geometry = new THREE.Geometry();
-    let vertexArray = [];
-    for (let i = 0; i < 200; i ++){
-      vertexArray.push(ship.position.clone());
-    }
-    geometry.vertices = vertexArray;
-
-    var material = new THREE.LineBasicMaterial( { color : 0xce00ff } );
-    material.linewidth = 3; //doesn't work on most recent chrome
-    ship.tail = new THREE.Line( geometry, material );
-    scene.add(ship.tail);
+    this.particleSystem = new ParticleSystem();
   };
   
   ship.updateTail = function(){
-    for (let i = 199; i > 0; i--){
-      this.tail.geometry.vertices[i].copy(this.tail.geometry.vertices[i-1]);
-    }
-    this.tail.geometry.vertices[0].copy(ship.position);
-    this.tail.geometry.verticesNeedUpdate = true;
-    this.tail.geometry.computeBoundingSphere();
+    this.particleSystem.position.copy(ship.position.clone().sub(ship.velocity.normalize().multiplyScalar(1)));
+    this.particleSystem.generate(100);
+  
+    this.particleSystem.geometry.attributes.position.needsUpdate = true;
+    this.particleSystem.geometry.attributes.color.needsUpdate = true;
+    this.particleSystem.geometry.computeBoundingSphere();
   };
 }
 
@@ -50,7 +40,7 @@ function ShipSquad(squadPos, curve, loopTime) {
   geometry.vertices = points;
   var material = new THREE.LineBasicMaterial( { color : 0xffffff, opacity: 0.3, transparent: true } );
   var curveObject = new THREE.Line( geometry, material );
-  scene.add(curveObject);
+  //scene.add(curveObject);
 }
 
 ShipSquad.prototype.init = function() {
@@ -107,8 +97,8 @@ ShipSquad.prototype.firePew = function (ship){
       uniforms: { 
           viewVector: { type: "v3", value: camera.position }
       },
-      vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-      fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+      vertexShader:   document.getElementById( 'vertexShaderPew'   ).textContent,
+      fragmentShader: document.getElementById( 'fragmentShaderPew' ).textContent,
       side: THREE.FrontSide,
       blending: THREE.AdditiveBlending,
       transparent: true
