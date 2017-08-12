@@ -187,7 +187,9 @@ function simulate(){
         if (pew.timeRemaining < 0){
           scene.remove(pew);
           pew.geometry.dispose();
+          pew.glow.geometry.dispose();
           pew.material.dispose();
+          pew.glow.material.dispose();
           squads[i].pews.delete(pew);
         }
       }

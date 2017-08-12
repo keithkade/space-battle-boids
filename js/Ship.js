@@ -8,7 +8,7 @@ function AugmentShip(ship){
   
   ship.updateTail = function(){
     this.particleSystem.position.copy(ship.position.clone().sub(ship.velocity.normalize().multiplyScalar(1)));
-    this.particleSystem.generate(100);
+    this.particleSystem.generate(30);
   
     this.particleSystem.geometry.attributes.position.needsUpdate = true;
     this.particleSystem.geometry.attributes.color.needsUpdate = true;
@@ -44,6 +44,22 @@ function ShipSquad(squadPos, curve, loopTime) {
 }
 
 ShipSquad.prototype.init = function() {
+  //share initialize glow materials and geometry only once
+  this.glowMaterial = new THREE.ShaderMaterial( {
+    uniforms: { 
+        viewVector: { type: "v3", value: camera.position }
+    },
+    vertexShader:   document.getElementById( 'vertexShaderPew'   ).textContent,
+    fragmentShader: document.getElementById( 'fragmentShaderPew' ).textContent,
+    side: THREE.FrontSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true
+  });
+
+  this.glowGeom = new THREE.CylinderGeometry(0.2, 0.2, 2.1);
+  var modifier = new THREE.SubdivisionModifier(4);
+  modifier.modify(this.glowGeom); 
+  
   return new Promise(function (fulfill, reject) {
     new ShipFactory().then(ship => {
 
@@ -92,25 +108,9 @@ ShipSquad.prototype.firePew = function (ship){
   );
 
   let line = new THREE.Line( geometry, material );
-    
-  let customMaterial = new THREE.ShaderMaterial( {
-      uniforms: { 
-          viewVector: { type: "v3", value: camera.position }
-      },
-      vertexShader:   document.getElementById( 'vertexShaderPew'   ).textContent,
-      fragmentShader: document.getElementById( 'fragmentShaderPew' ).textContent,
-      side: THREE.FrontSide,
-      blending: THREE.AdditiveBlending,
-      transparent: true
-  });
-
   line.position.copy(ship.position);
-    
-  let glowGeom = new THREE.CylinderGeometry(0.2, 0.2, head.length() + 0.1);
-  var modifier = new THREE.SubdivisionModifier(4);
-  modifier.modify( glowGeom ); 
   
-  let glow = new THREE.Mesh( glowGeom.clone(), customMaterial.clone() );
+  let glow = new THREE.Mesh( this.glowGeom.clone(), this.glowMaterial.clone() );
   
   // thx - http://stemkoski.blogspot.com/2013/07/shaders-in-threejs-glow-and-halo.html
     

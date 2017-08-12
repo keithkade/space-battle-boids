@@ -1,7 +1,7 @@
 function ParticleSystem(){
   this.particleLifespan = 10;
   this.index = 0;
-  this.max = 10000;
+  this.max = 3000;
   this.particlesAttr = new Array(this.max);
   this.position = new THREE.Vector3();  
   this.clock = clock;
@@ -32,7 +32,7 @@ function ParticleSystem(){
   this.geometry.attributes.position.needsUpdate = true;
   this.geometry.attributes.color.needsUpdate = true;
 
-  this.gaussian = gaussian(0, 0.03);
+  this.gaussian = gaussian(0, 0.02);
 
   this.particleSystem = new THREE.Points(this.geometry, pMaterial);
   scene.add(this.particleSystem);  
