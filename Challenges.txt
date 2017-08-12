@@ -18,5 +18,10 @@ https://www.youtube.com/watch?v=qNM0k522R7o
 So found wonderful hack from dude, enhanced to support rotation.
 
 
+THE TAIL
+
+PERFORMANCE - FRUSTRUM CULLING
+
+
 Sources: 
 http://www.astroblend.com/blenderFiles/sphericalMaps/starfield.png

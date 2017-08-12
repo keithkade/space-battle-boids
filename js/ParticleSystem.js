@@ -31,7 +31,11 @@ function ParticleSystem(){
   this.geometry.addAttribute('color', new THREE.BufferAttribute(this.colors, 4));
   this.geometry.attributes.position.needsUpdate = true;
   this.geometry.attributes.color.needsUpdate = true;
-
+  
+  // .frustrumCulled = false doesn't seem to work, so set bounding sphere to be max possible
+  this.geometry.computeBoundingSphere();
+  this.geometry.boundingSphere.radius = Number.MAX_VALUE;
+  
   this.gaussian = gaussian(0, 0.02);
 
   this.particleSystem = new THREE.Points(this.geometry, pMaterial);

@@ -7,12 +7,11 @@ function AugmentShip(ship){
   };
   
   ship.updateTail = function(){
-    this.particleSystem.position.copy(ship.position.clone().sub(ship.velocity.normalize().multiplyScalar(1)));
+    this.particleSystem.position.copy(ship.position).sub(ship.velocity.normalize());
     this.particleSystem.generate(30);
   
     this.particleSystem.geometry.attributes.position.needsUpdate = true;
     this.particleSystem.geometry.attributes.color.needsUpdate = true;
-    this.particleSystem.geometry.computeBoundingSphere();
   };
 }
 
