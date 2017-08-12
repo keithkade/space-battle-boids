@@ -9,6 +9,7 @@
     "ShipSquad": true,
     "scene": true,
     "axes": true,
+    "camera": true,
     "Util": true,
     "CURVES": true,
     "LEADERS": true,

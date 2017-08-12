@@ -91,47 +91,49 @@ ShipSquad.prototype.init = function() {
 
 ShipSquad.prototype.firePew = function (ship){
 
-  let canvas = document.createElement('canvas');
-  let size = 300;
-  canvas.width = size;
-  canvas.height = size;
-  let ctx = canvas.getContext('2d');
-  ctx.fillStyle = 'red';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let material = new THREE.LineBasicMaterial({color: 0xadffd0 });
+  let direction = ship.position.clone().sub(this.target.position).normalize();
   
-  var uniforms = {
-    texture1: { type: "t", value: new THREE.CanvasTexture(canvas) }
-  };
-  
-  var material = new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    vertexShader: document.getElementById('vertexshader').text,
-    fragmentShader: document.getElementById('fragmentshader').text
+  let geometry = new THREE.Geometry();
+  let head = direction.clone().multiplyScalar(2);
+  geometry.vertices.push(
+    new THREE.Vector3(0,0,0),
+    head
+  );
+
+  let line = new THREE.Line( geometry, material );
+    
+  let customMaterial = new THREE.ShaderMaterial( {
+      uniforms: { 
+          viewVector: { type: "v3", value: camera.position }
+      },
+      vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+      fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+      side: THREE.FrontSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true
   });
 
-  var direction = ship.position.clone().sub(this.target.position);
+  line.position.copy(ship.position);
+    
+  let glowGeom = new THREE.CylinderGeometry(0.2, 0.2, head.length() + 0.1);
+  var modifier = new THREE.SubdivisionModifier(4);
+  modifier.modify( glowGeom ); 
+  
+  let glow = new THREE.Mesh( glowGeom.clone(), customMaterial.clone() );
+  
+  // thx - http://stemkoski.blogspot.com/2013/07/shaders-in-threejs-glow-and-halo.html
+    
+  // align the glow with the lazer  
+  glow.lookAt(direction);
+  glow.rotateX(1.5708);
+  glow.position.sub(head.clone().multiplyScalar(-0.5));
 
-  var geometry = new THREE.Geometry();
-
-  geometry.vertices.push(
-    ship.position,
-    ship.position.clone().add(direction.normalize().multiplyScalar(30))
-  );
-
-  var vertices = geometry.vertices;
-  var buffergeometry = new THREE.BufferGeometry();
-  var position = new THREE.Float32BufferAttribute( vertices.length * 3, 3 ).copyVector3sArray( vertices );
-  buffergeometry.addAttribute( 'position', position );
-  var a_texcoord = new THREE.Float32BufferAttribute(vertices.length * 2, 2).copyVector2sArray(
-    [ new THREE.Vector2(0.0, 0.0), new THREE.Vector2(1.0, 1.0) ]  
-  );
-  buffergeometry.addAttribute( 'a_texcoord', a_texcoord );
- 
-  var line = new THREE.Line( buffergeometry, material );
-  scene.add( line );
+  line.add(glow);
+  line.glow = glow;
+  scene.add(line);
 
   line.timeRemaining = 5;
-  line.velocity = direction.normalize().clone().multiplyScalar(0);
-
+  line.velocity = direction.normalize().clone().multiplyScalar(-20);
   this.pews.add(line);
 };

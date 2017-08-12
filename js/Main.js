@@ -32,10 +32,10 @@ window.onload = function(){
   camera = Boiler.initCamera();
   light = Boiler.initLight();
   axes = Boiler.initAxes();
-  //Boiler.initScenery();
+  Boiler.initScenery();
   
   //change what the camera is looking at and add our controls
-  camera.position.set(40, 40, 40);
+  camera.position.set(10, 10, 50);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   initMotion();
@@ -182,6 +182,7 @@ function simulate(){
 
       for (let pew of squads[i].pews){
         pew.position.add(pew.velocity.clone().multiplyScalar(H));
+        pew.glow.material.uniforms.viewVector.value = new THREE.Vector3().subVectors( camera.position, pew.glow.getWorldPosition() );
 
         pew.timeRemaining -= H;
 
@@ -224,7 +225,7 @@ function simulate(){
 
     ship.updateTail();
 
-    if (Util.getRandom(0,100) > 99){
+    if (Util.getRandom(0,200) > 199){
       squads[squadIndex].firePew(ship);
     }
 

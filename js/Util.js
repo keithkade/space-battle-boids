@@ -19,8 +19,8 @@ let Boiler = {};
 /** create the renderer and add it to the scene */
 Boiler.initRenderer = function(){
   let renderer = new THREE.WebGLRenderer();
-  //renderer.setClearColor(0x050505, 1); 
-  renderer.setClearColor(0xcbcbcb, 1); 
+  renderer.setClearColor(0x050505, 1); 
+  //renderer.setClearColor(0xcbcbcb, 1); 
   renderer.setSize(SCENE_WIDTH, SCENE_HEIGHT);
   document.getElementById('webgl-container').appendChild(renderer.domElement);
   return renderer;

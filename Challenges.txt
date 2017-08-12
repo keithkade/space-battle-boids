@@ -10,8 +10,12 @@ Solution - circle with cool texture. low specular intensity so some space doesn'
 
 Glow - most shaders not working for opengl
 
+postprocess bloom blooms everything. 
+
 https://stackoverflow.com/questions/11678769/whats-the-counterpart-for-gl-texcoord-in-opengl-es-2-0
 https://www.youtube.com/watch?v=qNM0k522R7o
+
+So found wonderful hack from dude, enhanced to support rotation.
 
 
 Sources: 
