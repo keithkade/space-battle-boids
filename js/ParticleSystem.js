@@ -53,9 +53,13 @@ ParticleSystem.prototype.generate = function(count){
   }
 };
 
+
+// move outside func to save time garbage collecting
+let particlePos = new THREE.Vector3();
+
 /** move the particle at the given index to the new position */
 ParticleSystem.prototype.setParticle = function(index, pos){  
-  let particlePos = new THREE.Vector3(
+  particlePos.set(
     pos.x + this.gaussian.ppf(Math.random()), 
     pos.y + this.gaussian.ppf(Math.random()),
     pos.z + this.gaussian.ppf(Math.random())

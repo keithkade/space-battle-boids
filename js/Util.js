@@ -69,7 +69,6 @@ Boiler.initAxes = function(){
   axes.add(Boiler.initLabel('Y','#00ff00', [0, 25, 0]));
   axes.add(Boiler.initLabel('Z','#0000ff', [0, 0, 25]));
 
-  scene.add(axes);
   return axes;
 };
 
