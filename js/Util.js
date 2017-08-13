@@ -33,25 +33,73 @@ Boiler.initCamera = function(){
   return camera;
 };
     
-/** create the light(s) and add it to the scene */
-Boiler.initLight = function(){
-  let pointLight = new THREE.PointLight(0xFFFFFF, 0.8); // white light
-  pointLight.position.set(0, 500, 0);
-  scene.add(pointLight);
-  return pointLight;
-};
 
 /** starry background */
 Boiler.initScenery = function(){
+  // main light
+  let light = new THREE.PointLight(0xFFFFFF, 0.8); // white light
+  light.position.set(0, 500, 200);
+  scene.add(light);
+  
   var texture = new THREE.TextureLoader().load("assets/space.png");  
-  var geometry = new THREE.SphereGeometry(1000,20,20);
-  var material = new THREE.MeshPhongMaterial();
-  material.shininess = 1;
+  var geometry = new THREE.SphereGeometry(2000,32,32);
+  var material = new THREE.MeshBasicMaterial();
   material.side = THREE.DoubleSide;
   material.map = texture;
 
-  var space = new THREE.Mesh(geometry, material);  
+  var space = new THREE.Mesh(geometry, material);    
   scene.add(space);
+  
+  var planetTexture = new THREE.TextureLoader().load("assets/deathStar.jpg");  
+  var planetGeom = new THREE.SphereGeometry(300, 32, 32);
+  var planetMaterial = new THREE.MeshPhongMaterial( {color: 0x9097ba} );
+  planetMaterial.map = planetTexture;
+  var planet = new THREE.Mesh( planetGeom, planetMaterial );
+  planet.position.set(-300, -300, -150);
+  scene.add( planet );
+  
+  // make planet a source of light as well
+  let pointLight = new THREE.PointLight(0xfcffe6, 0.8); // white light
+  pointLight.position.set(-300, -300, -150);
+  scene.add(pointLight);
+  
+  //var sunTexture = new THREE.TextureLoader().load("assets/deathStar.jpg");  
+  var sunGeom = new THREE.SphereGeometry(40, 32, 32);
+  var sunMaterial = new THREE.MeshBasicMaterial( {
+    color: 0xffffff, 
+    transparent: true,
+    opacity: 0.7
+  });
+  var sun = new THREE.Mesh( sunGeom.clone(), sunMaterial.clone() );
+  sun.position.set(200, 400, -1400);
+  //sun.position.set(0, 0, -50);
+
+  //share initialize glow materials and geometry only once
+  let sunGlowMaterial = new THREE.ShaderMaterial( {
+    uniforms: { 
+        viewVector: { type: "v3", value: camera.position }
+    },
+    vertexShader:   document.getElementById( 'vertexShaderSun'   ).textContent,
+    fragmentShader: document.getElementById( 'fragmentShaderSun' ).textContent,
+    side: THREE.FrontSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true
+  });
+
+  let sunGlowGeom = new THREE.SphereGeometry(80, 32, 32);
+  let sunGlow = new THREE.Mesh( sunGlowGeom.clone(), sunGlowMaterial.clone() );
+  sun.add(sunGlow);
+  sun.glow = sunGlow;
+  scene.add(sun);
+
+  let sun2 = new THREE.Mesh( sunGeom.clone(), sunMaterial.clone() );
+  let sunGlow2 = new THREE.Mesh( sunGlowGeom.clone(), sunGlowMaterial.clone() );
+  sun2.glow = sunGlow2;
+  sun2.add(sunGlow2);
+  sun2.position.set(50, 300, -1000);
+  scene.add(sun2);
+
+  return [sun, sun2];
 };
 
 /** draw x, y and z axes */

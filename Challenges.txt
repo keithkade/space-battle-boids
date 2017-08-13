@@ -5,7 +5,7 @@ Solution - Pre allocate array, write shift loop myself, initialize all points to
 
 Boring background - plain black is laaaaaaame 
 
-Solution - circle with cool texture. low specular intensity so some space doesn't look lighter than others
+Solution - circle with cool texture
 
 
 Glow - most shaders not working for opengl
@@ -25,3 +25,5 @@ PERFORMANCE - FRUSTRUM CULLING
 
 Sources: 
 http://www.astroblend.com/blenderFiles/sphericalMaps/starfield.png
+
+http://3dmoddeling.blogspot.com/2011/12/blog-post_12.html

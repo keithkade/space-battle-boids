@@ -36,7 +36,7 @@ function ParticleSystem(){
   this.geometry.computeBoundingSphere();
   this.geometry.boundingSphere.radius = Number.MAX_VALUE;
   
-  this.gaussian = gaussian(0, 0.02);
+  this.gaussian = gaussian(0, 0.01);
 
   this.particleSystem = new THREE.Points(this.geometry, pMaterial);
   scene.add(this.particleSystem);  
@@ -72,8 +72,8 @@ ParticleSystem.prototype.setParticle = function(index, pos){
   let distanceFromCenter = pos.distanceTo(particlePos);
   
   //make center pixels whiter
-  this.colors[index * 4 + 0] = 0.9 - distanceFromCenter / 1;
-  this.colors[index * 4 + 1] = 0.9 - distanceFromCenter / 1;
+  this.colors[index * 4 + 0] = 0.7 - distanceFromCenter / 1;
+  this.colors[index * 4 + 1] = 0.7 - distanceFromCenter / 1;
 
   // alpha
   this.colors[index * 4 + 3] = 1 - distanceFromCenter / 1;  

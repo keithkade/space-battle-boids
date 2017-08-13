@@ -3,7 +3,7 @@
  */
 
 // Globals
-let scene, renderer, camera, light, axes, clock;
+let scene, renderer, camera, suns, axes, clock;
 
 const H = 0.016;            // Step time in seconds
 const H_MILLI = H * 1000;   // Step time In milliseconds
@@ -30,9 +30,8 @@ window.onload = function(){
   scene = new THREE.Scene();
   renderer = Boiler.initRenderer();
   camera = Boiler.initCamera();
-  light = Boiler.initLight();
   axes = Boiler.initAxes();
-  Boiler.initScenery();
+  suns = Boiler.initScenery();
   
   //change what the camera is looking at and add our controls
   camera.position.set(10, 10, 50);
@@ -163,6 +162,10 @@ function F(state){
 /** the main simulation loop. recursive */
 function simulate(){
   let timestep = H;
+
+  for (let i = 0; i < suns.length; i++){
+    suns[i].glow.material.uniforms.viewVector.value = new THREE.Vector3().subVectors( camera.position, suns[i].glow.getWorldPosition());
+  }
 
   //euler integration
   let deriv = F(overallState);
