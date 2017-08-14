@@ -8,7 +8,7 @@ function AugmentShip(ship){
   
   ship.updateTail = function(){
     this.particleSystem.position.copy(ship.position).sub(ship.velocity.normalize());
-    this.particleSystem.generate(20);
+    this.particleSystem.generate(18);
   
     this.particleSystem.geometry.attributes.position.needsUpdate = true;
     this.particleSystem.geometry.attributes.color.needsUpdate = true;

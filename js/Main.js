@@ -95,6 +95,8 @@ function stateMultScalar(state, scalar){
 
 let iter = 0;
 let zoomCount = 0;
+let acceleration = new THREE.Vector3(0,0,0);
+
 // gets the derivative of a state. plus external forces
 function F(state){
 
@@ -109,7 +111,7 @@ function F(state){
     //derivatives position is this timestep's velocity
     nextState[i].copy(state[i + OBJECT_COUNT]);
 
-    let acceleration = new THREE.Vector3(0,0,0);
+    acceleration.set(0,0,0);
 
     // flocking doesn't apply to leaders
     if (shipIndex === 0){
@@ -159,6 +161,7 @@ function F(state){
   return nextState;
 }
 
+let point = new THREE.Vector3(0,0,0);
 /** the main simulation loop. recursive */
 function simulate(){
   let timestep = H;
@@ -176,10 +179,10 @@ function simulate(){
       let target = squads[i].target;
       let curTime = clock.getElapsedTime();
       let frac = (curTime % squads[i].loopTime) / squads[i].loopTime;
-      let point = squads[i].curve.getPointAt(frac);
+      point.copy(squads[i].curve.getPointAt(frac));
       target.lookAt(point);
       target.updateTail();
-      target.velocity = point.clone().sub(target.position).divideScalar(H);
+      target.velocity.copy(point).sub(target.position).divideScalar(H);
       target.position.copy(point);
 
       for (let pew of squads[i].pews){
