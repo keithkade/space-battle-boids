@@ -34,12 +34,12 @@ function ShipSquad(squadPos, curve, loopTime) {
   this.pews = new Set();
 
   // for visual clarity. while debugging
-  var geometry = new THREE.Geometry();
-  let points = curve.getPoints(100);
-  geometry.vertices = points;
-  var material = new THREE.LineBasicMaterial( { color : 0xffffff, opacity: 0.3, transparent: true } );
-  var curveObject = new THREE.Line( geometry, material );
-  scene.add(curveObject);
+//  var geometry = new THREE.Geometry();
+//  let points = curve.getPoints(100);
+//  geometry.vertices = points;
+//  var material = new THREE.LineBasicMaterial( { color : 0xffffff, opacity: 0.3, transparent: true } );
+//  var curveObject = new THREE.Line( geometry, material );
+//  scene.add(curveObject);
 }
 
 ShipSquad.prototype.init = function() {
@@ -135,7 +135,7 @@ ShipSquad.prototype.firePew = function (ship){
   line.glow = glow;
   scene.add(line);
 
-  line.timeRemaining = 5;
+  line.timeRemaining = 8;
   line.velocity = direction.normalize().clone().multiplyScalar(-30);
   this.pews.add(line);
 };

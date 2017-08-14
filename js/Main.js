@@ -19,7 +19,7 @@ const leadNoiseFactor = 100;
 
 let simTimeout;
 let squads = [];
-const SQ_COUNT = 3;
+const SQ_COUNT = 4;
 const SQ_SIZE = 3;
 const OBJECT_COUNT = SQ_COUNT * SQ_SIZE;
 
@@ -34,11 +34,10 @@ window.onload = function(){
   suns = Boiler.initScenery();
   
   //change what the camera is looking at and add our controls
-  camera.position.set(10, 6, 60);
-  camera.lookAt(new THREE.Vector3(0, 4, 0));
+  camera.position.set(-10, 10, 70);
   let controls = new THREE.OrbitControls(camera, renderer.domElement);
-
   initMotion();
+  camera.lookAt(new THREE.Vector3(-10, 5, 0));
 };
 
 function initMotion(){

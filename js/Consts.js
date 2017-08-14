@@ -2,10 +2,12 @@ const STARTS = [
   new THREE.Vector3( 0, 0, 20 ),
   new THREE.Vector3( 40, 10, 40 ),
   new THREE.Vector3( -100, -40, -40 ),
+  new THREE.Vector3( 100, -40, -400 ),
 ];
 
 const CURVES = [
   new THREE.CurvePath(), 
+  new THREE.CurvePath(),
   new THREE.CurvePath(),
   new THREE.CurvePath(),
 ];
@@ -14,6 +16,7 @@ const LOOPTIMES = [
   40, 
   60,
   100,
+  140,
 ];
 
 const POINTS = [
@@ -28,7 +31,11 @@ const POINTS = [
   [STARTS[2],
    new THREE.Vector3( -380, -50, -400 ),
    new THREE.Vector3( -420, -20, -80 ),
-   STARTS[2]]
+   STARTS[2]],
+  [STARTS[3],
+   new THREE.Vector3( -280, 150, -760 ),
+   new THREE.Vector3( -220, 80, -420 ),
+   STARTS[3]]
 ];
 
 //////////////////////////////////////////////// Loop 1
@@ -88,8 +95,29 @@ CURVES[2].add(new THREE.QuadraticBezierCurve3(
 	POINTS[2][3]
 ));
 
+//////////////////////////////////////////////// Loop 4
+CURVES[3].add(new THREE.QuadraticBezierCurve3(
+	POINTS[3][0],
+	new THREE.Vector3( 120, 50, -840 ),
+	POINTS[3][1]
+));
+
+CURVES[3].add(new THREE.QuadraticBezierCurve3(
+	POINTS[3][1],
+	new THREE.Vector3( -480, 180, -640 ),
+	POINTS[3][2]
+));
+
+CURVES[3].add(new THREE.QuadraticBezierCurve3(
+	POINTS[3][2],
+	new THREE.Vector3( 80, -20, -130 ),
+	POINTS[3][3]
+));
+
+
 const LEADERS = [
   STARTS[0],
   STARTS[1],
   STARTS[2],
+  STARTS[3],  
 ];

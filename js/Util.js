@@ -49,6 +49,7 @@ Boiler.initScenery = function(){
   var space = new THREE.Mesh(geometry, material);    
   scene.add(space);
   
+  // death star
   var planetTexture = new THREE.TextureLoader().load("assets/deathStar.jpg");  
   var planetGeom = new THREE.SphereGeometry(300, 32, 32);
   var planetMaterial = new THREE.MeshPhongMaterial( {color: 0x9097ba} );
@@ -62,16 +63,33 @@ Boiler.initScenery = function(){
   pointLight.position.set(-300, -300, -150);
   scene.add(pointLight);
   
-  //var sunTexture = new THREE.TextureLoader().load("assets/deathStar.jpg");  
+  //cruiser 
+  new THREE.OBJLoader().load('assets/cruiser.obj', (cruiser) => {
+    //cruiser
+    cruiser.scale.set(9,9,9);
+    cruiser.position.set(40,40,-50);
+    cruiser.lookAt(new THREE.Vector3(60,60,50));
+    
+    let shipTexture = new THREE.TextureLoader().load("assets/cruiser.jpg");
+    shipTexture.wrapS = THREE.RepeatWrapping;
+    shipTexture.wrapT = THREE.RepeatWrapping;
+    shipTexture.repeat.set( 6, 2 );    
+    
+    cruiser.children[0].material.map = shipTexture;
+    cruiser.children[1].material.map = shipTexture;
+    scene.add(cruiser);
+  });
+  
+  var sunTexture = new THREE.TextureLoader().load("assets/sun.jpg");  
   var sunGeom = new THREE.SphereGeometry(40, 32, 32);
   var sunMaterial = new THREE.MeshBasicMaterial( {
     color: 0xffffff, 
     transparent: true,
-    opacity: 0.7
+    opacity: 0.7,
+    map: sunTexture
   });
   var sun = new THREE.Mesh( sunGeom.clone(), sunMaterial.clone() );
   sun.position.set(200, 400, -1400);
-  //sun.position.set(0, 0, -50);
 
   //share initialize glow materials and geometry only once
   let sunGlowMaterial = new THREE.ShaderMaterial( {
@@ -92,6 +110,8 @@ Boiler.initScenery = function(){
   scene.add(sun);
 
   let sun2 = new THREE.Mesh( sunGeom.clone(), sunMaterial.clone() );
+  var sun2Texture = new THREE.TextureLoader().load("assets/sun.jpg");  
+  sun2.material.map = sun2Texture;
   let sunGlow2 = new THREE.Mesh( sunGlowGeom.clone(), sunGlowMaterial.clone() );
   sun2.glow = sunGlow2;
   sun2.add(sunGlow2);
