@@ -1,4 +1,4 @@
-function ParticleSystem(){
+function ParticleSystem(r,g,b){
   this.particleLifespan = 10;
   this.index = 0;
   this.max = 3000;
@@ -13,9 +13,9 @@ function ParticleSystem(){
     this.vertices[i * 3 + 0] = 0;
     this.vertices[i * 3 + 1] = 0;
     this.vertices[i * 3 + 2] = 0;
-    this.colors[i * 4 + 0] = 0;
-    this.colors[i * 4 + 1] = 0;
-    this.colors[i * 4 + 2] = 1;
+    this.colors[i * 4 + 0] = r;
+    this.colors[i * 4 + 1] = g;
+    this.colors[i * 4 + 2] = b;
     this.colors[i * 4 + 3] = 1;
     this.particlesAttr[i] = {};
   }
@@ -70,11 +70,12 @@ ParticleSystem.prototype.setParticle = function(index, pos){
 
   // max distance from center ~ 0.8660254037844386
   let distanceFromCenter = pos.distanceTo(particlePos);
-  
+  let distanceFactor = distanceFromCenter / 1;
   //make center pixels whiter
-  this.colors[index * 4 + 0] = 0.7 - distanceFromCenter / 1;
-  this.colors[index * 4 + 1] = 0.7 - distanceFromCenter / 1;
-
+  this.colors[index * 4 + 0] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 0]);
+  this.colors[index * 4 + 1] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 1]);
+  this.colors[index * 4 + 2] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 2]);
+  
   // alpha
-  this.colors[index * 4 + 3] = 1 - distanceFromCenter / 1;  
+  this.colors[index * 4 + 3] = 1 - distanceFactor;  
 };

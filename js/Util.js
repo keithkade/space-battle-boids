@@ -33,7 +33,6 @@ Boiler.initCamera = function(){
   return camera;
 };
     
-
 /** starry background */
 Boiler.initScenery = function(){
   // main light

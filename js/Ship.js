@@ -2,8 +2,8 @@
 function AugmentShip(ship){
   ship.velocity = new THREE.Vector3(0,0,0);
 
-  ship.initTail = function(){
-    this.particleSystem = new ParticleSystem();
+  ship.initTail = function(r,g,b){
+    this.particleSystem = new ParticleSystem(r,g,b);
   };
   
   ship.updateTail = function(){
@@ -33,13 +33,13 @@ function ShipSquad(squadPos, curve, loopTime) {
 
   this.pews = new Set();
 
-  // for visual clarity. remove later
+  // for visual clarity. while debugging
   var geometry = new THREE.Geometry();
   let points = curve.getPoints(100);
   geometry.vertices = points;
   var material = new THREE.LineBasicMaterial( { color : 0xffffff, opacity: 0.3, transparent: true } );
   var curveObject = new THREE.Line( geometry, material );
-  //scene.add(curveObject);
+  scene.add(curveObject);
 }
 
 ShipSquad.prototype.init = function() {
@@ -69,6 +69,19 @@ ShipSquad.prototype.init = function() {
 
       this.target = ship.clone();
       AugmentShip(this.target);
+
+      //main ship color
+      ship.children[0].material.color.r = 0.8;
+      ship.children[0].material.color.g = 0.8;
+      ship.children[0].material.color.b = 1;
+      
+      this.target.children[0].material = this.target.children[0].material.clone();
+      
+      //target color
+      this.target.children[0].material.color.r = 0.6;
+      this.target.children[0].material.color.g = 0.2;
+      this.target.children[0].material.color.b = 0.2;
+      
       this.leader = this.ships[0];
 
       this.target.velocity = new THREE.Vector3(Util.getRandom(-2,2), 0, 1);
@@ -84,9 +97,9 @@ ShipSquad.prototype.init = function() {
       this.ships[2].position.copy(this.squadPos.clone());
       this.ships[2].position.setX(this.ships[2].position.x + 2);
 
-      this.target.initTail();
+      this.target.initTail(1,0,0);
       for (let i = 0; i < 3; i++){
-        this.ships[i].initTail();
+        this.ships[i].initTail(0,0,1);
       }
       
       fulfill(this);
@@ -123,6 +136,6 @@ ShipSquad.prototype.firePew = function (ship){
   scene.add(line);
 
   line.timeRemaining = 5;
-  line.velocity = direction.normalize().clone().multiplyScalar(-20);
+  line.velocity = direction.normalize().clone().multiplyScalar(-30);
   this.pews.add(line);
 };
