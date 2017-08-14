@@ -8,7 +8,7 @@ function AugmentShip(ship){
   
   ship.updateTail = function(){
     this.particleSystem.position.copy(ship.position).sub(ship.velocity.normalize());
-    this.particleSystem.generate(30);
+    this.particleSystem.generate(20);
   
     this.particleSystem.geometry.attributes.position.needsUpdate = true;
     this.particleSystem.geometry.attributes.color.needsUpdate = true;
@@ -135,7 +135,7 @@ ShipSquad.prototype.firePew = function (ship){
   line.glow = glow;
   scene.add(line);
 
-  line.timeRemaining = 8;
+  line.timeRemaining = 7;
   line.velocity = direction.normalize().clone().multiplyScalar(-30);
   this.pews.add(line);
 };

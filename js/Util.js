@@ -77,6 +77,9 @@ Boiler.initScenery = function(){
     
     cruiser.children[0].material.map = shipTexture;
     cruiser.children[1].material.map = shipTexture;
+    cruiser.children[1].material.color.r = 0.8;
+    cruiser.children[1].material.color.g = 0.9;
+    cruiser.children[1].material.color.b = 1;
     scene.add(cruiser);
   });
   

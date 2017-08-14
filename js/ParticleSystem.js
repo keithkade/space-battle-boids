@@ -1,7 +1,7 @@
 function ParticleSystem(r,g,b){
   this.particleLifespan = 10;
   this.index = 0;
-  this.max = 3000;
+  this.max = 2200;
   this.particlesAttr = new Array(this.max);
   this.position = new THREE.Vector3();  
   this.clock = clock;
@@ -72,9 +72,10 @@ ParticleSystem.prototype.setParticle = function(index, pos){
   let distanceFromCenter = pos.distanceTo(particlePos);
   let distanceFactor = distanceFromCenter / 1;
   //make center pixels whiter
-  this.colors[index * 4 + 0] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 0]);
-  this.colors[index * 4 + 1] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 1]);
-  this.colors[index * 4 + 2] = Math.max(0.7 - distanceFactor, this.colors[index * 4 + 2]);
+  let newColor = 0.7 - distanceFactor;
+  this.colors[index * 4 + 0] = Math.max(newColor, this.colors[index * 4 + 0]);
+  this.colors[index * 4 + 1] = Math.max(newColor, this.colors[index * 4 + 1]);
+  this.colors[index * 4 + 2] = Math.max(newColor, this.colors[index * 4 + 2]);
   
   // alpha
   this.colors[index * 4 + 3] = 1 - distanceFactor;  
